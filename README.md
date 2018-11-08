@@ -1,5 +1,5 @@
 # Generating survival times using Cox proportional hazards models with cyclic and piecewise time-varying covariates
-This is the R code repository for methods and simulations described in Huang Y, Zhang L, Zhang Z, Gilbert P. (2018) " Generating survival times using Cox proportional hazards models with cyclic time-varying covariates." arXiv:1801.08248, 2018.
+This is the R code repository for implementing methods and simulations described in Huang Y, Zhang L, Zhang Z, Gilbert P. (2018) " Generating survival times using Cox proportional hazards models with cyclic time-varying covariates." arXiv:1801.08248, 2018.
 
 Specifically, it generates survival data with cyclic time-varying covariates using the antibody-mediated prevention (AMP) trials as an example, where HIV negative volunteers are randomized in 1:1:1 allocation to one of three study arms{ 10 mg=kg VRC01 (low dose), 30 mg=kg VRC01 (high dose), or placebo, each administered via infusion every 8 weeks for 10 infusions. 
 
