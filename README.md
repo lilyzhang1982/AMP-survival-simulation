@@ -8,4 +8,5 @@ Consquently, the cyclic time-varying covariate (e.g., time since last infusion i
 2. The single-dose approach described in Section 2.4.1 is used to simulate time to infection as a funtion of time since last infusion. 
 3. The final survival data is taken as the minimal of the simulated time to infection and 80 weeks. 
 
-# Author: Lily Zhang, Yunda Huang
+## Author: 
+Lily Zhang, Yunda Huang
