@@ -11,7 +11,7 @@ library(grid)
 ###########################################################
 # Function for simulating survival data over one dose interval as a first
 # step before such data are aggregated over multiple dose intervals
-# as described in Section 2.4 of Huang et al. (2018)
+# as described in Section 2.4.1 of Huang et al. (2018)
 ###########################################################
 #' f_infect_singleDose
 #' Input parameters: 
@@ -75,7 +75,7 @@ f_infect_singleDose <- function(data
 
 ########################################################
 # Function for simulating survival data over multiple dose intervals directly
-# as described in Section 2.4 of Huang et al. (2018)
+# as described in Section 2.4.2 of Huang et al. (2018)
 ########################################################
 #' gen_survival_time
 #' Input parameters: 
