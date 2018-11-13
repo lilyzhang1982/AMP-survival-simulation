@@ -5,7 +5,7 @@ Specifically, it generates survival data with cyclic time-varying covariates usi
 
 Consquently, the cyclic time-varying covariate (e.g., time since last infusion in AMP) is first simulated before the survival time is simulated. For the simulations described in Section 3 of Huang et al. (2018), The following steps are carried out: AMP example, time-since-last infusion 
 1. Infusion visit times for each of the 10 infusions are simulated for each participant assuming perfect study product adherence
-2. The single-dose approach described in Section 2.4.1 is used to simulate time to infection as a funtion of time since last infusion. 
+2. The single-dose approach and the  multiple-dose approach described in Section 2.4 are used to simulate time to infection as a funtion of time since last infusion. 
 3. The final survival data is taken as the minimal of the simulated time to infection and 80 weeks. 
 
 ## Author: 
