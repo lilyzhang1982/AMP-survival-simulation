@@ -32,7 +32,7 @@ library(grid)
 #' @ day_vis = time since enrollment (days)
 #' @ f_infu = flag variable indicating visit at which infusion is administered (1=yes, 0=no)
 #' @ f_event = flag variable indicating whether the survival event is observed (=1) or censored (=0)
-#' @ t_event = time to event for cases or NA for non-cases 
+#' @ t_event = time to event for cases or time to last follow up for non-cases 
 
 f_infect_singleDose <- function(data
                                 ,beta.t
@@ -42,7 +42,7 @@ f_infect_singleDose <- function(data
   
   
   ddply(data,.(ID),function(df){
-    #           browser()
+              # browser()
     dat <- df
     dat <- dat[order(dat$day_vis),]
     #infection status
@@ -61,7 +61,8 @@ f_infect_singleDose <- function(data
     dat_infu$f_event <- ifelse(dat_infu$t_interval>=dat_infu$t_event,1,0)
     # uninfected 
     if(all(dat_infu$f_event!=1,na.rm=T)){
-      dat$t_event <- NA
+      dat$t_event <- max(dat$day_vis)
+      dat$f_event <- 0
     }
     # infected
     if(any(dat_infu$f_event==1,na.rm=T)){
@@ -69,6 +70,7 @@ f_infect_singleDose <- function(data
       dat_event <- subset(dat_infu,f_event==1)
       dat_event <- dplyr::sample_n(dat_event,1)
       dat$t_event <- dat_event$t_event+dat_event$day_vis
+      dat$f_event <- ifelse(dat$t_event<= dat$day_vis,1,0)
     }
     return(dat)
   })
@@ -420,10 +422,15 @@ sim <- function(n_infu=10
       if(unique(df$dose)==0){
         t_event <- data.frame(ID=1:n_ppt,t_event=rexp(n=n_ppt,rate=r_incidence/365))
         df <- merge(df,t_event,by="ID")
-        df$RNA <- ifelse(df$day_vis>=df$t_event,1,0)
-        ID_cases <- unique(df$ID[df$RNA==1])
-        df$t_event <- ifelse(df$ID%in%ID_cases,df$t_event,NA)
-        df$RNA <- NULL
+        df$f_event <- ifelse(df$day_vis>=df$t_event,1,0)
+        # browser()
+        df <- ddply(df,.(ID),function(dat){
+          # browser()
+          if(all(dat$f_event==0)){
+            dat$t_event <- max(dat$day_vis)
+          }
+          return(dat)
+        })
         return(df)
       }else{
         if(unique(df$dose)==10){
@@ -435,9 +442,9 @@ sim <- function(n_infu=10
     })
     # browser()
     #---------- data preparation for KM --------------
-    ID_cases <- unique(dat_long$ID[!is.na(dat_long$t_event)])
+    ID_cases <- unique(dat_long$ID[dat_long$f_event==1])
     dat_long$inf <- ifelse(dat_long$ID%in%ID_cases,1,0)
-    dat_sur <- ddply(dat_long,.(ID,dose,inf),summarise,survtime=ifelse(unique(inf)==0,max(day_vis),unique(t_event)))
+    dat_sur <- ddply(dat_long,.(ID,dose,inf),summarise,survtime=unique(t_event))
     dat_sur$adherence <- folder
     rm(dat_long)
    
