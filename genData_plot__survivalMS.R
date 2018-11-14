@@ -1,4 +1,5 @@
 rm(list=ls())
+# load libraries for data manipulations and figures 
 library(plyr)
 library(reshape2)
 library(zoo)
@@ -8,28 +9,29 @@ library(ggplot2)
 library(grid)
 
 
-###########################################################
+###########################################################################
 # Function for simulating survival data over one dose interval as a first
 # step before such data are aggregated over multiple dose intervals
 # as described in Section 2.4.1 of Huang et al. (2018)
-###########################################################
+###########################################################################
 #' f_infect_singleDose
 #' Input parameters: 
 #' @param data  : simulated AMP-like infusion and non-infusion visit schedules according to steps described in Zhang et al. (2018) 
 #' "Pharmacokinetics Simulations for Studying Correlates of Prevention Efficacy of Passive HIV-1 Antibody Prophylaxis in the Antibody 
 #' Mediated Prevention (AMP) Study." arXiv:1801.08626, 2018. 
 #' @param beta.t  : per-day change effect of the time-varying covariate on log hazard ratio
-#' @param ts : the time (in days) since the most recent infusion when drug concentration reaches the zero-protection threshold
-#' @param r_incidence : annual HIV incidence rate
+#' @param ts : time (in days) since the most recent infusion when drug concentration reaches the zero-protection threshold, s
+#' @param r_incidence : annual HIV incidence rate in the placebo group
 #' 
 #' Output: 
 #' A dataset containing variables
 #' @ ID = participant ID
-#' @ dose = participant randomly allocated dose group (10=10 mg/kg VRC01 ,30=30 mg/kg VRC01,0=placebo)
+#' @ dose = participant randomly allocated dose group (10=10 mg/kg VRC01, 30=30 mg/kg VRC01, 0=placebo)
 #' @ visit_n = protocol visit number
 #' @ f_vis = flag variable indicating visit at which HIV diagnostic testing is performed (1=yes, 0=no) 
 #' @ day_vis = time since enrollment (days)
 #' @ f_infu = flag variable indicating visit at which infusion is administered (1=yes, 0=no)
+#' @ f_event = flag variable indicating whether the survival event is observed (=1) or censored (=0)
 #' @ t_event = time to event for cases or NA for non-cases 
 
 f_infect_singleDose <- function(data
@@ -73,27 +75,26 @@ f_infect_singleDose <- function(data
   
 }
 
-########################################################
+##############################################################################
 # Function for simulating survival data over multiple dose intervals directly
 # as described in Section 2.4.2 of Huang et al. (2018)
-########################################################
+##############################################################################
 #' gen_survival_time
 #' Input parameters: 
 #' @param beta.t  : per-day change effect of the time-varying covariate on log hazard ratio
 #' #' Output: 
-#' A vector of survival time 
+#' A vector of survival times in a length of n
 
 # sample size 
-n <- 3000*1000
+n <- 3000
 # incidence rate 
 r <- 0.04/365
 
-# idealized infusion times (since enrolment) for the 10 infusions with an constant interval of 56 days
+# perfect adherence infusion times (since enrolment) for the 10 infusions with an constant interval of 56 days
 t.vec <- seq(0, 72*7, by=56)
 
 # random uniform number  
 u <- runif(n)
-
 
 gen_survival_time <- function(beta.t){
   lambda <- r/exp(beta.t*56)
@@ -158,8 +159,8 @@ gen_survival_time <- function(beta.t){
 #' @param r_dropout  : annual dropout rate
 #' @param beta.t.30 :  per-day change effect on log-hazard for 30 mg/Kg dose group
 #' @param beta.t.10 : per-day change effect on log-hazard for 10 mg/Kg dose group
-#' @param r_incidence : annual incidence rate
-#' @param B  : number of datasets simulated 
+#' @param r_incidence : annual incidence rate in the placebo group
+#' @param B  : number of datasets to simulate
 #' 
 #' #' Output: 
 #' A dataset containing variables
@@ -414,7 +415,7 @@ sim <- function(n_infu=10
     dat_long <- merge(dat_cov,dat_long,by="ID")
     rm(dat_cov)
     #---------------- infection status ------------------
-    #survival time is simulated by considering single dose infusion
+    #survival time is simulated by using the single dose approach
     dat_long <- ddply(dat_long,.(dose),function(df){
       if(unique(df$dose)==0){
         t_event <- data.frame(ID=1:n_ppt,t_event=rexp(n=n_ppt,rate=r_incidence/365))
